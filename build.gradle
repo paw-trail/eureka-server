@@ -1,0 +1,66 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.1.1'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.pawtrail'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('springCloudVersion', "2025.1.3")
+}
+
+dependencies {
+    // ── Spring Cloud ──────────────────────────────────────────
+    // 서비스 레지스트리 본체임
+    // 웹 스타터와 대시보드 화면에 쓰이는 템플릿 엔진을 전이로 끌어옴
+    // 안 끌어오면 서블릿 컨테이너 없이 떴다가 바로 종료되므로
+    // 기동 로그에 Tomcat started on port 8761 이 뜨는지 확인할 것
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
+
+    // 이 서비스는 설정을 config 저장소에서 받음
+    // config-server 가 이것을 넣지 않은 것은 자기가 서버였기 때문이고
+    // 유레카는 받는 쪽임, 자기 자신을 조회할 일이 없어 순환이 생기지 않음
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+
+    // eureka-client 는 따로 선언하지 않음
+    // 서버 스타터가 전이로 물고 오며, 등록·조회를 끄는 설정은 config 저장소에 있음
+
+    // ── 상태확인 · 관측 ───────────────────────────────────────
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // actuator 만으로는 /actuator/prometheus 가 생기지 않음
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+
+    // ── 로깅 ──────────────────────────────────────────────────
+    // 공통 모듈을 의존하지 않으므로 직접 선언함
+    // 플랫폼 3종이 common 을 쓰지 않는 이유는 README 4장을 참고
+    implementation "com.github.loki4j:loki-logback-appender:${lokiVersion}"
+
+    // ── 테스트 ────────────────────────────────────────────────
+    // Boot 4 에서 테스트 스타터가 모듈별로 갈림
+    // contextLoads 가 실패하면 spring-boot-starter-webmvc-test 를 더할 것
+    testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
