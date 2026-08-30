@@ -87,13 +87,45 @@ cd eureka-server
 
 `LOKI_HOST` 는 이 서비스에 없습니다. Loki 주소가 자기 설정이 아니라 config 저장소의 `application-{env}.yml` 에서 내려오기 때문이며, 설정을 받지 못하는 `config-server` 와 갈리는 지점입니다.
 
-### 2-3. 기동 순서
+### 2-3. 컨테이너로 띄우기
+
+`infra` 저장소의 Compose에 `platform` 프로파일이 있습니다. 도메인 서비스를 개발할 때는 **플랫폼을 컨테이너로 두고 작업 중인 서비스만 개발 도구에서 실행하는 조합**이 편합니다.
+
+```powershell
+cd ..\infra
+docker compose --profile infra --profile platform up -d
+docker compose ps
+```
+
+이 서비스는 `config-server` 가 준비될 때까지 기다렸다가 뜹니다. `STATUS` 가 `(healthy)` 로 바뀌면 준비된 것입니다.
+
+이미지는 ghcr에서 받아 오며, 코드를 고쳤다면 먼저 다시 만들어 올려야 합니다. 그 절차는 `infra` 저장소 README에 있습니다.
+
+```powershell
+.\gradlew clean build
+docker build -t ghcr.io/paw-trail/eureka-server:latest .
+docker push ghcr.io/paw-trail/eureka-server:latest
+```
+
+**다만 대부분은 이미지를 다시 만들 필요가 없습니다.** 이 서비스의 설정은 `config` 저장소에 있으므로 그쪽을 고치면 됩니다. 이미지를 다시 만들어야 하는 것은 이 저장소의 코드와 의존성이 바뀐 경우뿐입니다.
+
+컨테이너에서는 `CONFIG_HOST` 만 지정하면 나머지 주소는 설정을 통해 내려옵니다. 4계층 파일이 `dev` 값을 주므로 **자기 주소 인식도 함께 맞춰집니다.** 5장을 참고합니다.
+
+```yaml
+environment:
+  SPRING_PROFILES_ACTIVE: dev
+  CONFIG_HOST: config-server
+```
+
+### 2-4. 기동 순서
 
 ```
 config-server  →  eureka-server  →  gateway-server  →  도메인 서비스 14개
 ```
 
 `config-server` 는 유레카가 없어도 죽지 않고 등록만 조용히 재시도합니다. 반대로 이 서비스는 `config-server` 가 없으면 설정을 받지 못하므로, **순서를 지키지 않으면 포트부터 어긋납니다.** 6장을 참고합니다.
+
+컨테이너에서는 Compose가 이 순서를 지켜 줍니다. `config-server` 가 준비될 때까지 기다렸다가 이 서비스를 띄우므로 순서를 신경 쓰지 않아도 됩니다.
 
 ---
 
