@@ -51,6 +51,13 @@ eureka:
 
 그래서 껐습니다. 감수하는 것은 **진짜로 네트워크가 끊겼을 때 멀쩡한 인스턴스까지 지워진다**는 점이며, EC2 6대가 한 VPC 안에 있고 인스턴스가 20개 남짓인 규모에서는 그 상황이 성립하지 않는다고 보았습니다.
 
+껐다는 것은 대시보드에서 확인됩니다. 붉은 글씨로 표시되지만 **문제를 알리는 경고가 아니라 이 설정이 적용되었다는 표시**입니다.
+
+```
+THE SELF PRESERVATION MODE IS TURNED OFF.
+THIS MAY NOT PROTECT INSTANCE EXPIRY IN CASE OF NETWORK/OTHER PROBLEMS.
+```
+
 ---
 
 ## 2. 로컬 실행
@@ -108,6 +115,8 @@ http://localhost:8761
 
 `config-server` 를 함께 띄웠다면 그것이 목록에 있어야 합니다. 이 서비스 자신은 나타나지 않으며 그 이유는 1-2에 있습니다.
 
+**DS Replicas 절과 General Info 의 `registered-replicas` · `unavailable-replicas` · `available-replicas` 는 모두 비어 있어야 합니다.** 유레카를 한 대만 두므로 복제 대상이 없는 것이 맞습니다. 여기에 자기 주소가 보인다면 5장의 `my-url` 이 어긋난 것이며 6장을 확인합니다.
+
 ### 3-2. 등록 이름을 확인합니다
 
 Status 열에 표시되는 주소가 **호출 가능한 주소인지** 확인합니다. IntelliJ 에서 실행한 서비스가 `localhost` 로 등록되면, 컨테이너 안에서 도는 게이트웨이가 그 주소를 **자기 자신으로 해석해 스스로를 호출합니다.**
@@ -115,6 +124,10 @@ Status 열에 표시되는 주소가 **호출 가능한 주소인지** 확인합
 그래서 `local` 프로파일에서는 `host.docker.internal` 로 등록하도록 config 저장소에 지정해 두었습니다. Docker Desktop 이 호스트를 가리키도록 넣어 주는 이름이라 호스트에서도 컨테이너에서도 풀립니다.
 
 `dev` 프로파일은 같은 도커 네트워크 안이므로 컨테이너 IP 로 등록합니다.
+
+**`config-server` 는 이 설정을 받지 않는데도 `host.docker.internal` 로 등록됩니다.** config 저장소에서 설정을 받지 못하는 서비스이기 때문에 처음에는 이상해 보이지만 정상입니다. 유레카는 `eureka.instance.hostname` 이 지정되지 않으면 로컬 IP 를 역방향 조회해 호스트명을 얻는데, Docker Desktop 이 이 PC 의 IP 를 `hosts` 파일에 `host.docker.internal` 로 등록해 두므로 그 조회가 같은 이름을 돌려줍니다.
+
+따라서 **Docker Desktop 이 실행 중이어야 이 이름이 성립합니다.** 꺼져 있으면 PC 의 호스트명으로 등록되고, 그 이름은 컨테이너 안에서 풀리지 않습니다.
 
 ### 3-3. 상태 확인
 
@@ -158,7 +171,30 @@ spring:
 |:---:|---|---|
 | 1 | `application.yml` | 액추에이터 노출 범위, graceful shutdown, 로깅 레벨 |
 | 2 | `eureka-server.yml` | 포트 8761, 자기 등록 여부, 자기보호 모드 |
-| 3 | `application-{env}.yml` | Loki · Zipkin 주소 |
+| 3 | `application-{env}.yml` | 유레카 주소, Loki · Zipkin 주소 |
+| 4 | `eureka-server-{env}.yml` | **`eureka.server.my-url`** |
+
+### 4계층을 쓰는 이유
+
+이 서비스는 프로젝트에서 **4계층 파일을 갖는 유일한 서비스**입니다. 4계층은 되도록 비우는 것이 원칙이지만 이 값은 다른 곳에 둘 수 없습니다.
+
+`my-url` 은 **"이 주소는 나 자신이다"** 를 알려주는 값입니다. 유레카 서버는 `eureka.client.service-url` 을 다른 유레카 서버(피어)의 목록으로 읽고, 그중 자기 자신은 빼야 하는데 자기인지 판단할 때 호스트명을 문자열로 비교합니다. 그런데 3계층이 주는 두 값이 서로 다릅니다.
+
+```
+eureka.instance.hostname                 host.docker.internal
+eureka.client.service-url.defaultZone    http://localhost:8761/eureka/
+```
+
+문자열이 다르므로 자기를 남으로 보고, 자기에게 복제하려고 클라이언트를 만들다가 **기동에 실패합니다.** `my-url` 을 `defaultZone` 과 정확히 같게 주면 문자열 비교를 건너뛰고 자기로 인식합니다.
+
+값이 환경마다 다르므로 2계층에 한 번만 둘 수 없고, 3계층이 2계층을 이기므로 2계층에 적으면 덮입니다. **4계층이 유일한 자리입니다.**
+
+| 프로파일 | `my-url` |
+|---|---|
+| `local` | `http://localhost:8761/eureka/` |
+| `dev` | `http://eureka-server:8761/eureka/` |
+
+**`defaultZone` 을 고칠 때는 `my-url` 도 함께 고칩니다.** 두 값은 슬래시 하나까지 같아야 합니다.
 
 1계층에는 데이터베이스와 Kafka 설정도 들어 있고 그것이 이 서비스에도 내려옵니다. 다만 해당 의존성을 넣지 않았으므로 그 값을 읽는 코드가 없어 아무 일도 일어나지 않습니다.
 
@@ -168,18 +204,33 @@ spring:
 
 ## 6. 트러블슈팅
 
-### 기동 로그의 경고 두 가지는 정상입니다
-
-유레카를 한 대만 두고 운영하기 때문에 나타나는 것이며 고칠 필요가 없습니다.
+### 기동 로그의 이 경고는 정상입니다
 
 ```
 WARN c.n.eureka.cluster.PeerEurekaNodes : The replica size seems to be empty.
                                           Check the route 53 DNS Registry
 ```
 
-유레카를 여러 대로 묶어 서로 복제하도록 구성하지 않았기 때문입니다. 단독 운영에서는 복제 대상이 없는 것이 정상이며, 이 경고가 단독 구성에서 불필요하게 나온다는 점은 `spring-cloud-netflix` 저장소에도 개선 요청으로 올라와 있습니다.
+유레카를 여러 대로 묶어 서로 복제하도록 구성하지 않았기 때문입니다. **피어가 0개라는 뜻이며 이 서비스에서는 그것이 정상 상태입니다.** 이 경고가 단독 구성에서 불필요하게 나온다는 점은 `spring-cloud-netflix` 저장소에도 개선 요청으로 올라와 있습니다.
 
-대시보드 하단의 **unavailable-replicas** 에 자기 주소가 표시되는 것도 같은 이유입니다. 유레카는 어떤 주소가 자기 자신인지 판단할 때 호스트명을 문자열로 비교하는데, `localhost:8761` 과 `{호스트명}:8761` 을 서로 다른 것으로 보기 때문입니다. `register-with-eureka: false` 와는 무관하게 나타납니다.
+바로 다음 줄에 `Replica node URL: ...` 이 이어진다면 그때는 정상이 아닙니다. 아래 항목을 봅니다.
+
+### 기동에 실패하며 `Cannot Create new Replica Node` 가 나옵니다
+
+```
+Caused by: java.lang.RuntimeException: Cannot Create new Replica Node :Jersey3ReplicationClient: ...
+Caused by: java.lang.NoClassDefFoundError: org/apache/http/conn/socket/ConnectionSocketFactory
+```
+
+**`my-url` 과 `defaultZone` 이 어긋난 것입니다.** 유레카가 자기 주소를 남의 것으로 보고 복제 클라이언트를 만들려다 실패한 것이며, 마지막 줄의 클래스 이름은 원인이 아니라 그 과정에서 드러난 결과입니다.
+
+로그 위쪽에서 `Adding new peer nodes [...]` 에 적힌 주소를 확인하고, 설정 서버가 실제로 내려주는 두 값을 대조합니다.
+
+```powershell
+curl.exe http://localhost:8888/eureka-server/local
+```
+
+`eureka.server.my-url` 과 `eureka.client.service-url.defaultZone` 이 **문자열까지 정확히 같아야 합니다.** 배경은 5장에 있습니다.
 
 ### 대시보드가 8761 에 없습니다
 
@@ -235,3 +286,14 @@ eureka-server/
     ├── ISSUE_TEMPLATE/issue_template.md
     └── pull_request_template.md
 ```
+
+이 서비스의 설정은 별도 저장소에 있습니다.
+
+```
+paw-trail/config/
+├── eureka-server.yml           2계층. 포트, 자기 등록 여부, 자기보호 모드
+├── eureka-server-local.yml     4계층. my-url
+└── eureka-server-dev.yml       4계층. my-url
+```
+
+`eureka-server-prod.yml` 은 AWS 노드 주소가 정해질 때 함께 만듭니다. `application-prod.yml` 의 `defaultZone` 과 짝을 맞추어야 하므로 그 값이 채워지기 전에는 만들 수 없습니다.
