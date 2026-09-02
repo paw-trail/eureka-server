@@ -51,7 +51,7 @@
 
 ```java
 @SpringBootApplication
-@EnableEurekaServer          // ★Initializr 가 붙여 주지 않음
+@EnableEurekaServer          // *Initializr 가 붙여 주지 않음
 public class EurekaServerApplication {
 
     public static void main(String[] args) {
@@ -123,6 +123,56 @@ eureka:
 
 ---
 
+### 먼저 알아 두면 좋은 것 3가지
+
+---
+
+**① 레지스트리란 — 전화번호부**
+
+```
+게이트웨이가 place-service 를 부르려면 주소(IP:포트)를 알아야 함
+        │
+        ├── 게이트웨이 설정에 적어 둠      →  place 가 포트를 바꾸면 게이트웨이도 고쳐야 함
+        │
+        └── 전화번호부에서 찾음           →  place 가 기동하며 자기 번호를 등록
+                                            게이트웨이는 이름으로 찾음
+                                            *그 전화번호부가 이 서비스
+```
+
+---
+
+**② 인스턴스란 — 같은 서비스를 여러 개 띄운 것**
+
+```
+verdict-service   인스턴스 3개    172.18.0.7:8086 · 172.18.0.8:8086 · 172.18.0.9:8086
+        │
+        └── 유레카 장부에 셋 다 등록됨
+              게이트웨이가 "verdict 어디 있어?" 하면 셋 중 하나를 번갈아 줌
+```
+
+**"서비스" 는 이름 하나, "인스턴스" 는 실제로 떠 있는 프로세스 하나입니다.**
+지금 로컬은 전부 1개씩이고, 배포에서 verdict 3개 · search 2개로 늘립니다.
+
+---
+
+**③ "계층" 이란**
+
+이 서비스의 설정은 `config` 저장소에서 옵니다. 거기 파일이 네 부류이고 **겹쳐서 하나가 됩니다.**
+
+```
+1계층  application.yml           모든 서비스 공통
+2계층  eureka-server.yml         이 서비스만          ← 포트 · 자기등록 · 자기보호
+3계층  application-local.yml     local 환경만
+4계층  eureka-server-local.yml   이 서비스 · local 만  ← *my-url
+                                                        숫자가 클수록 이김
+```
+
+**이 서비스는 4계층을 실제로 쓰는 유일한 사례입니다.** 이유는 [3장](#3-my-url--기동-실패를-막는-값) 에 있습니다.
+
+<br><br>
+
+---
+
 ### 이 문서를 읽는 순서
 
 | 지금 하려는 일 | 볼 곳 |
@@ -134,6 +184,7 @@ eureka:
 | 이미지를 굽거나 배포해야 한다 | [5장](#5-컨테이너와-배포) |
 | 뭔가 안 된다 | [6장](#6-막히기-쉬운-자리) |
 | "왜 이렇게 만들었지" | [7장](#7-왜-이렇게-만들었나) |
+| 모르는 말이 나온다 | [9장](#9-용어) |
 
 <br><br>
 
@@ -150,7 +201,7 @@ eureka:
 ② EurekaServerApplication 실행               IntelliJ
         │
         ├──▶  config 에서 eureka-server.yml 을 받음        포트 · 자기등록 · 자기보호
-        └──▶  eureka-server-local.yml 도 받음             ★my-url
+        └──▶  eureka-server-local.yml 도 받음             *my-url
         │
         ▼
 ③ 기동 로그                                 Tomcat started on port 8761
@@ -167,10 +218,10 @@ eureka:
 
 ```
 The following 1 profile is active: "local"
-Located environment: name=eureka-server, profiles=[local]     ★config 를 받았음
-Tomcat started on port 8761                                   ★8080 이면 config 미수신
+Located environment: name=eureka-server, profiles=[local]     *config 를 받았음
+Tomcat started on port 8761                                   *8080 이면 config 미수신
 Client configured to neither register nor query for data.     register·fetch false 적용
-The replica size seems to be empty.                           ★정상 — 3장 참고
+The replica size seems to be empty.                           *정상 — 3장 참고
 Started EurekaServerApplication in 4.4 seconds
 ```
 
@@ -257,7 +308,7 @@ host.docker.internal 로 등록하면
         ├── 호스트에서       hosts 파일의 LAN IP    192.168.1.161
         └── 컨테이너 안에서   도커 내부 게이트웨이     192.168.65.254
                     │
-                    └── ★둘 다 결국 호스트를 가리킴
+                    └── *둘 다 결국 호스트를 가리킴
                           한 이름이 양쪽에서 통함
 ```
 
@@ -448,7 +499,7 @@ eureka:
     register-with-eureka: false
     fetch-registry: false
   server:
-    enable-self-preservation: false      # ★아래
+    enable-self-preservation: false      # *아래
 ```
 
 ---
@@ -476,7 +527,7 @@ eureka:
 core 노드를 유레카 OUT_OF_SERVICE 기반 롤링으로 교체하기로 했는데
         │
         └── 자기보호가 켜져 있으면 내린 인스턴스가 지워지지 않음
-              ★무중단 배포를 검증하려는 자리에서 검증 자체가 방해받음
+              *무중단 배포를 검증하려는 자리에서 검증 자체가 방해받음
 ```
 
 > **감수하는 것** — 진짜 네트워크 분단이 나면 멀쩡한 인스턴스까지 지워집니다.
@@ -531,7 +582,7 @@ eureka.instance.*           같음
 
 ```yaml
 # infra/docker-compose.yml
-  eureka-server:                    # ★이 이름이 그대로 호스트명이 됨
+  eureka-server:                    # *이 이름이 그대로 호스트명이 됨
     image: ghcr.io/paw-trail/eureka-server:latest
     environment:
       SPRING_PROFILES_ACTIVE: dev
@@ -866,3 +917,29 @@ curl http://localhost:3100/loki/api/v1/labels
 ```
 
 **응답에 `data` 필드가 있는지로 봅니다.**
+
+
+<br><br>
+
+---
+
+## 9. 용어
+
+| 용어 | 뜻 |
+|---|---|
+| **레지스트리** | 서비스 이름 → 주소 장부. 이 서비스 |
+| **등록** | 서비스가 기동하며 자기 주소를 장부에 올리는 것 |
+| **하트비트** | 등록한 서비스가 30초마다 "살아 있음" 을 알리는 신호 |
+| **만료** | 90초 소식이 없는 인스턴스를 장부에서 지우는 것 |
+| **인스턴스** | 실제로 떠 있는 프로세스 하나. 한 서비스에 여럿일 수 있음 |
+| **`register-with-eureka`** | 자기를 장부에 올릴지. 이 서비스는 `false` |
+| **`fetch-registry`** | 장부를 받아 올지. 이 서비스는 `false` |
+| **자기보호 모드** | 하트비트가 85% 아래로 떨어지면 만료를 멈추는 장치. **우리는 끔** |
+| **피어** | 다른 유레카 서버. 여러 대로 묶을 때 서로를 이렇게 부름. 우리는 1대 |
+| **피어 복제** | 유레카 서버끼리 장부를 복사하는 것. 안 함 |
+| **`my-url`** | "내 주소는 이것" 이라고 알려 자기를 피어 목록에서 빼는 값. **없으면 기동 실패** |
+| **`defaultZone`** | 등록하는 쪽이 유레카를 찾아가는 주소. `my-url` 과 문자열까지 같아야 함 |
+| **`host.docker.internal`** | 컨테이너 안에서 호스트를 가리키는 이름. local 등록 이름 |
+| **`prefer-ip-address`** | 호스트명 대신 IP 로 등록할지. dev 는 `true` |
+| **4계층** | `eureka-server-{env}.yml`. 이 서비스만 실제로 씀 |
+| **DS Replicas** | 대시보드의 피어 목록. **비어 있어야 정상** |
