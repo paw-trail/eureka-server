@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="700" viewBox="0 0 1500 700" font-family="Noto Sans CJK KR, 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif">
+<defs><marker id="ah-374151" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto"><path d="M0,0 L11,4.5 L0,9 z" fill="#374151"/></marker><marker id="as-374151" markerWidth="11" markerHeight="9" refX="1" refY="4.5" orient="auto"><path d="M11,0 L0,4.5 L11,9 z" fill="#374151"/></marker><marker id="ah-3B82F6" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto"><path d="M0,0 L11,4.5 L0,9 z" fill="#3B82F6"/></marker><marker id="as-3B82F6" markerWidth="11" markerHeight="9" refX="1" refY="4.5" orient="auto"><path d="M11,0 L0,4.5 L11,9 z" fill="#3B82F6"/></marker><marker id="ah-6366F1" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto"><path d="M0,0 L11,4.5 L0,9 z" fill="#6366F1"/></marker><marker id="as-6366F1" markerWidth="11" markerHeight="9" refX="1" refY="4.5" orient="auto"><path d="M11,0 L0,4.5 L11,9 z" fill="#6366F1"/></marker><marker id="ah-16A34A" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto"><path d="M0,0 L11,4.5 L0,9 z" fill="#16A34A"/></marker><marker id="as-16A34A" markerWidth="11" markerHeight="9" refX="1" refY="4.5" orient="auto"><path d="M11,0 L0,4.5 L11,9 z" fill="#16A34A"/></marker><marker id="ah-F97316" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto"><path d="M0,0 L11,4.5 L0,9 z" fill="#F97316"/></marker><marker id="as-F97316" markerWidth="11" markerHeight="9" refX="1" refY="4.5" orient="auto"><path d="M11,0 L0,4.5 L11,9 z" fill="#F97316"/></marker><marker id="ah-A855F7" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto"><path d="M0,0 L11,4.5 L0,9 z" fill="#A855F7"/></marker><marker id="as-A855F7" markerWidth="11" markerHeight="9" refX="1" refY="4.5" orient="auto"><path d="M11,0 L0,4.5 L11,9 z" fill="#A855F7"/></marker><marker id="ah-9CA3AF" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto"><path d="M0,0 L11,4.5 L0,9 z" fill="#9CA3AF"/></marker><marker id="as-9CA3AF" markerWidth="11" markerHeight="9" refX="1" refY="4.5" orient="auto"><path d="M11,0 L0,4.5 L11,9 z" fill="#9CA3AF"/></marker><marker id="ah-D97706" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto"><path d="M0,0 L11,4.5 L0,9 z" fill="#D97706"/></marker><marker id="as-D97706" markerWidth="11" markerHeight="9" refX="1" refY="4.5" orient="auto"><path d="M11,0 L0,4.5 L11,9 z" fill="#D97706"/></marker><marker id="ah-111827" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto"><path d="M0,0 L11,4.5 L0,9 z" fill="#111827"/></marker><marker id="as-111827" markerWidth="11" markerHeight="9" refX="1" refY="4.5" orient="auto"><path d="M11,0 L0,4.5 L11,9 z" fill="#111827"/></marker></defs><rect width="1500" height="700" fill="#FFFFFF"/>
+<rect x="572.0" y="292.0" width="356" height="116" rx="18" fill="none" stroke="#6366F1" stroke-width="3" opacity="0.5"/>
+<rect x="580.0" y="300.0" width="340" height="100" rx="12" fill="#E0E7FF" stroke="#6366F1" stroke-width="3.5"/>
+<text x="750" y="328" font-size="22" font-weight="bold" text-anchor="middle" fill="#111827">eureka-server  :8761</text>
+<text x="750" y="348" font-size="12" font-weight="normal" text-anchor="middle" fill="#4B5563">이름 → 주소 장부</text>
+<text x="750" y="364" font-size="12" font-weight="normal" text-anchor="middle" fill="#4B5563">자기는 장부에 안 올림</text>
+<text x="572.0" y="286.0" font-size="13" font-weight="bold" text-anchor="start" fill="#6366F1">이 레포</text>
+<rect x="50.0" y="155.0" width="260" height="90" rx="12" fill="#DBEAFE" stroke="#3B82F6" stroke-width="2.2"/>
+<text x="180" y="178" font-size="17" font-weight="bold" text-anchor="middle" fill="#111827">gateway-server</text>
+<text x="180" y="198" font-size="12" font-weight="normal" text-anchor="middle" fill="#4B5563">"place 어디 있어?"</text>
+<text x="180" y="214" font-size="12" font-weight="normal" text-anchor="middle" fill="#4B5563">lb://place-service</text>
+<rect x="50.0" y="445.0" width="260" height="110" rx="12" fill="#DCFCE7" stroke="#22C55E" stroke-width="2.2"/>
+<text x="180" y="478" font-size="17" font-weight="bold" text-anchor="middle" fill="#111827">도메인 서비스 14개</text>
+<text x="180" y="498" font-size="12" font-weight="normal" text-anchor="middle" fill="#4B5563">기동할 때 등록</text>
+<text x="180" y="514" font-size="12" font-weight="normal" text-anchor="middle" fill="#4B5563">30초마다 하트비트</text>
+<rect x="600.0" y="80.0" width="300" height="80" rx="12" fill="#E0E7FF" stroke="#6366F1" stroke-width="2.2"/>
+<text x="750" y="106" font-size="17" font-weight="bold" text-anchor="middle" fill="#111827">config-server</text>
+<text x="750" y="126" font-size="12" font-weight="normal" text-anchor="middle" fill="#4B5563">eureka-server.yml + 4계층 my-url</text>
+<rect x="1150.0" y="460.0" width="300" height="80" rx="12" fill="#E0E7FF" stroke="#6366F1" stroke-width="2.2"/>
+<text x="1300" y="486" font-size="17" font-weight="bold" text-anchor="middle" fill="#111827">config-server 도 등록</text>
+<text x="1300" y="506" font-size="12" font-weight="normal" text-anchor="middle" fill="#4B5563">대시보드에 보이기 위해</text>
+<rect x="1150.0" y="155.0" width="300" height="90" rx="12" fill="#F3E8FF" stroke="#A855F7" stroke-width="2.2"/>
+<text x="1300" y="186" font-size="17" font-weight="bold" text-anchor="middle" fill="#111827">대시보드  :8761</text>
+<text x="1300" y="206" font-size="12" font-weight="normal" text-anchor="middle" fill="#4B5563">등록 목록 · DS Replicas 는 비어야 정상</text>
+<polyline points="310.0,200 500,200 500,350 580.0,350" fill="none" stroke="#6366F1" stroke-width="2.4" marker-end="url(#ah-6366F1)"/>
+<rect x="475" y="258" width="50" height="19" rx="4" fill="#FFFFFF" opacity="0.92"/>
+<text x="500" y="270" font-size="13" font-weight="normal" text-anchor="middle" fill="#6366F1">② 조회</text>
+<polyline points="310.0,500 500,500 500,350 580.0,350" fill="none" stroke="#6366F1" stroke-width="2.4" marker-end="url(#ah-6366F1)"/>
+<rect x="400" y="428" width="200" height="19" rx="4" fill="#FFFFFF" opacity="0.92"/>
+<text x="500" y="440" font-size="13" font-weight="normal" text-anchor="middle" fill="#6366F1">등록 · 하트비트 · 90초 없으면 만료</text>
+<polyline points="750,160.0 750,300.0" fill="none" stroke="#6366F1" stroke-width="2.4" marker-end="url(#ah-6366F1)"/>
+<rect x="631" y="210" width="237" height="19" rx="4" fill="#FFFFFF" opacity="0.92"/>
+<text x="750.0" y="222.0" font-size="13" font-weight="normal" text-anchor="middle" fill="#6366F1">기동 시 설정  (my-url 이 없으면 기동 실패)</text>
+<polyline points="1150.0,500 1000,500 1000,350 920.0,350" fill="none" stroke="#6366F1" stroke-width="2.4" marker-end="url(#ah-6366F1)"/>
+<rect x="977" y="428" width="46" height="19" rx="4" fill="#FFFFFF" opacity="0.92"/>
+<text x="1000" y="440" font-size="13" font-weight="normal" text-anchor="middle" fill="#6366F1">등록만</text>
+<polyline points="920.0,350 1000,350 1000,200 1150.0,200" fill="none" stroke="#A855F7" stroke-width="2.4" marker-end="url(#ah-A855F7)"/>
+<text x="40" y="660" font-size="13" font-weight="normal" text-anchor="start" fill="#4B5563">자기보호 모드를 껐음 · local 은 host.docker.internal 로, dev 는 컨테이너 IP 로 등록됨 · 피어 복제 없음 (1대)</text>
+<text x="1476" y="688" font-size="11" text-anchor="end" fill="#9CA3AF">eureka-server 를 중심으로 · 직접 연결된 것만</text></svg>
